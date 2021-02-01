@@ -4,5 +4,10 @@
 # .tfstate files
 *.tfstate
 *.tfstate.*
-*.zip*
+# *.zip*
 *.tfvars
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
