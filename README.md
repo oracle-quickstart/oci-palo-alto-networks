@@ -1,4 +1,4 @@
-# oci-paloaltonetworks
+# oci-palo-alto-networks
 
 This is a Terraform module that deploys Palo Alto Networks solutions on [Oracle Cloud Infrastructure (OCI)](https://cloud.oracle.com/en_US/cloud-infrastructure). It is developed jointly by Oracle and Palo Alto Networks.
 
@@ -19,11 +19,6 @@ This project contains multiple solutions. Each solution folder is structured in 
 This project includes below solutions supported: 
 
 - **Palo Alto Networks Active/Passive HA** : [paloaltonetworks-ha](paloaltonetworks-ha) this allows end user to deploy PAN solutions in hub and spoke architecture. 
-
-## Prerequisites
-
-First off we'll need to do some pre deploy setup.  That's all detailed [here](https://github.com/oracle/oci-quickstart-prerequisites).
-
 
 ## How to use these templates
 
