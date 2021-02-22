@@ -3,7 +3,7 @@
 
 # ------ Create Dynamic Group to Support Palo Alto Networks HA
 resource "oci_identity_dynamic_group" "pan_dynamic_group" {
-  provider       = oci.home_region
+  # provider       = oci.home_region
   compartment_id = var.tenancy_ocid
   name           = var.dynamic_group_name
   description    = var.dynamic_group_description
@@ -12,7 +12,7 @@ resource "oci_identity_dynamic_group" "pan_dynamic_group" {
 
 # ------ Create Dynamic Group Policies to Support Palo Alto Networks HA (fix this)
 resource "oci_identity_policy" "pan_firewall_ha_policy" {
-  provider       = oci.home_region
+  # provider       = oci.home_region
   compartment_id = var.network_compartment_ocid
   description    = var.dynamic_group_policy_description
   name           = var.dynamic_group_policy_name
