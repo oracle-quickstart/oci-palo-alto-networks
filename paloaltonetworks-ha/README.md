@@ -6,9 +6,9 @@ For details of the architecture, see [_Set up a hub-and-spoke network topology_]
 
 ## Prerequisites
 
-- Permission to `manage` the following types of resources in your Oracle Cloud Infrastructure tenancy: `vcns`, `internet-gateways`, `route-tables`, `security-lists`, `local-peering-gateways`, `subnets`, and `instances`.
-
-- Quota to create the following resources: 3 VCNS, 3 subnets, and 1 compute instance.
+- We'll need to do some pre deploy setup.  That's all detailed [here](https://github.com/oracle/oci-quickstart-prerequisites).
+- Permission to `manage` the following types of resources in your Oracle Cloud Infrastructure tenancy: `vcns`, `internet-gateways`, `route-tables`, `security-lists`, `local-peering-gateways`, `subnets`, `dynamic-groups` and `instances`.
+- Quota to create the following resources: 3 VCNS, 6 subnets, and 6 compute instance.
 
 If you don't have the required permissions and quota, contact your tenancy administrator. See [Policy Reference](https://docs.cloud.oracle.com/en-us/iaas/Content/Identity/Reference/policyreference.htm), [Service Limits](https://docs.cloud.oracle.com/en-us/iaas/Content/General/Concepts/servicelimits.htm), [Compartment Quotas](https://docs.cloud.oracle.com/iaas/Content/General/Concepts/resourcequotas.htm).
 
@@ -34,6 +34,15 @@ If you don't have the required permissions and quota, contact your tenancy admin
 
 
 ## Deploy Using the Terraform CLI
+
+Make sure you have terraform v0.13+ cli installed and accessible from your terminal.
+
+```bash
+terraform -v
+
+Terraform v0.13.0
++ provider.oci v4.14.0
+```
 
 ### Clone the Module
 Create a local copy of this repository:
@@ -90,4 +99,114 @@ When you no longer need the deployment, you can run this command to destroy the 
 
 This section will include necessary configuration which you need to configure to support HA (active/passive) use-case. 
 
-> This section will be updated. You can follow config-ha directory for the time being to support routes, policies, interfaces, HA config. 
+Once you deploy the infrastructure either using Oracle Resource Manager or Terraform CLI. We have to upload configuration on Palo Alto Networks VM series Firewall. 
+
+
+> This section will be automated as Palo Alto Networks personal add bootstrap configuration using either user-data or bucket. You can follow  [Config Directory](./config-ha) directory for the time being to support routes, policies, interfaces, HA config. 
+
+Before you proceed to next section, you should setup a admin password through CLI (Instrcutions are printed after a successful run of this code) using below commands: 
+
+```
+1.  Open an SSH client.
+2.  Use the following information to connect to the instance
+username: admin
+IP_Address: ${oci_core_instance.ha-vms.0.public_ip}
+SSH Key
+For example:
+$ ssh –i id_rsa admin@${oci_core_instance.ha-vms.0.public_ip}
+3.  Set the user password for the administrator. 
+    - Enter the command: set user admin password
+    - Change the password using command: set mgt-config users admin password
+4. Save the configuration. Enter the command: commit
+After saving the password, you should run the first time wizard in the VM Series UI:
+1.  In a web browser, 
+    - Connect to the VM Series UI Firewall-1: https://${oci_core_instance.ha-vms.0.public_ip}
+    - Connect to the VM Series UI Firewall-2: https://${oci_core_instance.ha-vms.1.public_ip}
+```
+
+### Firewall-1 Configuration 
+
+We have added required configuration for Palo Alto Networks Firewall 1 (HA Cluster First Instance) [Firewall A Configuration](./config-ha/firewallA.xml). You can use this as a reference and upload this on your Firewall. Configuration should be same but you can compare your configuration with your Firewall Instances.
+
+1. Connect to Firewall UI 
+2. Go to Device > Operation Tab 
+3. Select Import Configuration and Choose FirewallA.xml file described here. 
+4. Now Select Load Configuration and choose file from dropdown which you just imported. 
+5. Verify Configuration; Interfaces, Security Policies, NAT Policies, Default Routes, Address Objects
+6. Commit your changes
+
+
+Once you commit your change you won't be able to use your previously set admin password, you should use `admin/Pal0Alt0@123` login details to UI now. 
+
+At some point you will need to enable jumbo frame you can do this using below steps: 
+1. Connect to Firewall UI 
+2. Select Device > Session > Setting > Setting button 
+3. Check jumbo frame icon. 
+
+### Firewall-2 Configuration 
+
+
+We have added required configuration for Palo Alto Networks Firewall 2 (HA Cluster Second Instance) [Firewall B Configuration](./config-ha/firewallB.xml). You can use this as a reference and upload this on your Firewall. Configuration should be same but you can compare your configuration with your Firewall Instances.
+
+1. Connect to Firewall UI 
+2. Go to Device > Operation Tab 
+3. Select Import Configuration and Choose FirewallA.xml file described here. 
+4. Now Select Load Configuration and choose file from dropdown which you just imported. 
+5. Verify Configuration; Interfaces, Security Policies, NAT Policies, Default Routes, Address Objects
+6. Commit your changes
+
+Once you commit your change you won't be able to use your previously set admin password, you should use `admin/Pal0Alt0@123` login details to UI now. 
+
+At some point you will need to enable jumbo frame you can do this using below steps: 
+1. Connect to Firewall UI 
+2. Select Device > Session > Setting > Setting button 
+3. Check jumbo frame icon. 
+
+
+#### Some Sample Configuration Pics on Palo Alto Networks Firewall 
+
+I am attaching some sample configuration from one of the Firewall-B for your reference as below: 
+
+1. Interfaces Configuration 
+    - Ethernet1/1 ; Trust Interface 
+    - Ethernet1/2 ; Untrust Interface 
+    - Ethernet1/3 ; HA Interface
+
+![](./images/FirewallB_Interfaces.png)
+
+
+2. Security Policies 
+    - Untrust to Trust and Vice Versa 
+    - Intra Zone Policies 
+
+![](./images/FirewallB_Policies.png)
+
+3. HA Communication 
+    - HA 1 is tied to Managment Interface 
+    - HA 2 is tied to ethernet1/3 interface 
+
+![](./images/FirewallB_HA.png)
+
+
+4. Default Routes Configuration 
+    - Default route via untrust interface gateway (eth1/2)
+    - Static Routes for Spoke VCNs and Oracle Storage Networks via trust interface gateway (eth1/1)
+
+![](./images/FirewallB_Routes.png)
+
+5. NAT Policies 
+    - We have two NAT policies 
+        - First: Traffic to Web Spoke VCN so end user can connect to VM from outside using public IP of untrust interface of Firewall (Floating IP)
+        - Second: Traffic towards interent from Spoke VCNs
+
+6. Jumbo Frame Configuration 
+    - End user need to enable this manually and restart each firewall VM afterwards. 
+    - Below image shows where you need to go to enable jumbo frame. 
+
+![](./images/FirewallB_JumboFrame.png)
+
+
+
+## Feedback 
+
+Feedbacks are welcome to this repo, please open a PR if you have any.

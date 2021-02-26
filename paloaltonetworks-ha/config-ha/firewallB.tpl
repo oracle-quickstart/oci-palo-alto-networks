@@ -323,37 +323,37 @@
                     <bfd>
                       <profile>None</profile>
                     </bfd>
-                    <interface>ethernet1/2</interface>
+                    <interface>ethernet1/1</interface>
                     <metric>10</metric>
                     <destination>0.0.0.0/0</destination>
                     <route-table>
                       <unicast/>
                     </route-table>
                   </entry>
-                  <entry name="spokeVCNs">
+                  <entry name="dbvcn">
                     <nexthop>
                       <ip-address>192.168.2.1</ip-address>
                     </nexthop>
                     <bfd>
                       <profile>None</profile>
                     </bfd>
-                    <interface>ethernet1/1</interface>
+                    <interface>ethernet1/2</interface>
                     <metric>10</metric>
-                    <destination>10.0.0.0/16</destination>
+                    <destination>10.0.1.0/24</destination>
                     <route-table>
                       <unicast/>
                     </route-table>
                   </entry>
-                  <entry name="RouteToOSNs">
+                  <entry name="webvcn">
                     <nexthop>
                       <ip-address>192.168.2.1</ip-address>
                     </nexthop>
                     <bfd>
                       <profile>None</profile>
                     </bfd>
-                    <interface>ethernet1/1</interface>
+                    <interface>ethernet1/2</interface>
                     <metric>10</metric>
-                    <destination>134.70.0.0/16</destination>
+                    <destination>10.0.0.0/24</destination>
                     <route-table>
                       <unicast/>
                     </route-table>
@@ -392,7 +392,7 @@
             <disable-http>yes</disable-http>
           </service>
           <hostname>FWB</hostname>
-          <ip-address>192.168.0.3</ip-address>
+          <ip-address>192.168.0.2</ip-address>
           <netmask>255.255.255.0</netmask>
           <default-gateway>192.168.0.1</default-gateway>
           <dns-setting>
@@ -440,7 +440,7 @@
           </interface>
           <group>
             <group-id>1</group-id>
-            <peer-ip>192.168.0.2</peer-ip>
+            <peer-ip>192.168.0.3</peer-ip>
             <state-synchronization>
               <transport>ip</transport>
             </state-synchronization>
@@ -487,7 +487,7 @@
               <rules>
                 <entry name="Traffic to LB Web VCN" uuid="0d6544a0-a6f9-4d18-925e-33224a860fd4">
                   <dynamic-destination-translation>
-                    <translated-address>web-vcn-vm</translated-address>
+                    <translated-address>web-vcn-lb</translated-address>
                   </dynamic-destination-translation>
                   <to>
                     <member>untrust</member>
@@ -596,80 +596,6 @@
                     <member>any</member>
                   </hip-profiles>
                   <action>allow</action>
-                </entry>
-                <entry name="Trust to Trust" uuid="92c4d9ad-bf12-4739-95e1-95890956a9b4">
-                  <to>
-                    <member>trust</member>
-                  </to>
-                  <from>
-                    <member>trust</member>
-                  </from>
-                  <source>
-                    <member>any</member>
-                  </source>
-                  <destination>
-                    <member>any</member>
-                  </destination>
-                  <source-user>
-                    <member>any</member>
-                  </source-user>
-                  <category>
-                    <member>any</member>
-                  </category>
-                  <application>
-                    <member>any</member>
-                  </application>
-                  <service>
-                    <member>any</member>
-                  </service>
-                  <hip-profiles>
-                    <member>any</member>
-                  </hip-profiles>
-                  <action>allow</action>
-                  <source-hip>
-                    <member>any</member>
-                  </source-hip>
-                  <destination-hip>
-                    <member>any</member>
-                  </destination-hip>
-                  <log-start>no</log-start>
-                </entry>
-                <entry name="Untrust to Untrust" uuid="73c218a1-9b01-4abb-9c3c-2902a41e86ea">
-                  <to>
-                    <member>untrust</member>
-                  </to>
-                  <from>
-                    <member>untrust</member>
-                  </from>
-                  <source>
-                    <member>any</member>
-                  </source>
-                  <destination>
-                    <member>any</member>
-                  </destination>
-                  <source-user>
-                    <member>any</member>
-                  </source-user>
-                  <category>
-                    <member>any</member>
-                  </category>
-                  <application>
-                    <member>any</member>
-                  </application>
-                  <service>
-                    <member>any</member>
-                  </service>
-                  <hip-profiles>
-                    <member>any</member>
-                  </hip-profiles>
-                  <action>allow</action>
-                  <source-hip>
-                    <member>any</member>
-                  </source-hip>
-                  <destination-hip>
-                    <member>any</member>
-                  </destination-hip>
-                  <log-start>no</log-start>
                 </entry>
               </rules>
             </security>
