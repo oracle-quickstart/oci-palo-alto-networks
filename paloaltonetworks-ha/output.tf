@@ -38,9 +38,11 @@ $ ssh –i id_rsa admin@${oci_core_instance.ha-vms.0.public_ip}
     - Enter the command: set user admin password
     - Change the password using command: set mgt-config users admin password
 4. Save the configuration. Enter the command: commit
-After saving the password, you should run the first time wizard in the VM Series UI:
-1.  In a web browser, connect to the VM Series UI: https://${oci_core_instance.ha-vms.0.public_ip}
-2.  Follow the First Time Configuration Wizard.
-3.  For additional details follow the documentation.
+
+After saving the password, you should be able to connect to VM Series UI using admin/<password_set>:
+1.  In a web browser, 
+    - Connect to the VM Series UI Firewall-1: https://${oci_core_instance.ha-vms.0.public_ip}
+    - Connect to the VM Series UI Firewall-2: https://${oci_core_instance.ha-vms.1.public_ip}
+2.  For additional details follow the official documentation.
 EOT
 }
