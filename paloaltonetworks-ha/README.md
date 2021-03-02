@@ -1,4 +1,4 @@
-# Palo Alto Networks High Availability Active/Passive on OCI - Reference Architecture
+# High Availability Active/Passive - Reference Architecture
 
 We are using hub-and-spoke architecture (often called as star topology) to achieve High Availability with Palo Alto Networks VM Sereis Firewall. This architecture has a central component (the hub) that's connected to multiple networks around it, like a spoke. We are using Palo Alto Networks VM series firewall BOYL Listing from OCI Marketplace.
 
