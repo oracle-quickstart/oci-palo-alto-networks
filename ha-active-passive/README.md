@@ -30,7 +30,7 @@ You can deploy this architecture using two approach explained in each section:
 
 In this section you will follow each steps given below to create this architecture:
 
-1. Click [![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://console.us-phoenix-1.oraclecloud.com/resourcemanager/stacks/create?region=home&zipUrl=https://github.com/oracle-quickstart/oci-paloaltonetworks/raw/master/paloaltonetworks-ha/resource-manager/pan-ha.zip)
+1. Click [![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://console.us-phoenix-1.oraclecloud.com/resourcemanager/stacks/create?region=home&zipUrl=https://github.com/oracle-quickstart/oci-palo-alto-networks/raw/master/ha-active-passive/resource-manager/pan-ha.zip)
 
     > If you aren't already signed in, when prompted, enter the tenancy and user credentials.
 
