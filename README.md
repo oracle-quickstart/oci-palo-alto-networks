@@ -19,6 +19,7 @@ This project contains multiple solutions. Each solution folder is structured in 
 This project includes below solutions supported: 
 
 - **Palo Alto Networks Active/Passive HA** : [ha-active-passive](ha-active-passive) this allows end user to deploy PAN solutions in hub and spoke architecture. 
+- **Palo Alto Networks Network Load Balancer - Sandwich Topology** : [pan-oci-nlb-sandwich-topology](nlb-use-case) this allows end user to deploy PAN solutions in hub and spoke architecture. 
 
 ## How to use these templates
 
