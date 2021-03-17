@@ -1,7 +1,3 @@
-## Copyright © 2020, Oracle and/or its affiliates. 
-## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
-
-
 # ------ Get Network Compartment Name for Policies
 data "oci_identity_compartment" "network_compartment" {
     id = var.network_compartment_ocid

@@ -1,6 +1,4 @@
-## Copyright © 2020, Oracle and/or its affiliates. 
-## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
-
+# ------ Initialize Terraform Providers
 terraform {
   required_version = ">= 0.12.0"
 }
@@ -30,8 +28,10 @@ provider "oci" {
 variable "user_ocid" {
 }
 
+# ------ Fingerprint Variable Placeholder
 variable "fingerprint" {
 }
 
+# ------ Private Key Path Variable Placeholder
 variable "private_key_path" {
 }

@@ -1,6 +1,4 @@
-## Copyright © 2020, Oracle and/or its affiliates. 
-## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
-
+# ------ Create OCI Load Balancer on Web Spoke VCN
 resource "oci_load_balancer_load_balancer" "WebLB" {
   count          = local.use_existing_network ? 0 : 1
   shape          = "100Mbps"
@@ -12,6 +10,7 @@ resource "oci_load_balancer_load_balancer" "WebLB" {
   is_private   = false
 }
 
+# ------ Create Backend Set to Load Balancer Created Above (End User should install app on HTTP port on Web Spoke VCN VMs)
 resource "oci_load_balancer_backend_set" "lb-web-backend" {
   count            = local.use_existing_network ? 0 : 1
   name             = "lb-web-backend"
@@ -25,6 +24,7 @@ resource "oci_load_balancer_backend_set" "lb-web-backend" {
   }
 }
 
+# ------ Create Load Balancer Listener
 resource "oci_load_balancer_listener" "lb-web-listener" {
   count                    = local.use_existing_network ? 0 : 1
   load_balancer_id         = oci_load_balancer_load_balancer.WebLB[count.index].id
@@ -38,7 +38,6 @@ resource "oci_load_balancer_listener" "lb-web-listener" {
 }
 
 # ------ Add a new Backend Set to Load Balancer
-
 resource "oci_load_balancer_backend" "lb_backends_1" {
   count            = local.use_existing_network ? 0 : 1
   backendset_name  = oci_load_balancer_backend_set.lb-web-backend[count.index].name
@@ -48,7 +47,6 @@ resource "oci_load_balancer_backend" "lb_backends_1" {
 }
 
 # ------ Add a new Backend Set to Load Balancer
-
 resource "oci_load_balancer_backend" "lb_backends_2" {
   count            = local.use_existing_network ? 0 : 1
   backendset_name  = oci_load_balancer_backend_set.lb-web-backend[count.index].name
