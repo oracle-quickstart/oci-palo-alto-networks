@@ -1,6 +1,3 @@
-## Copyright © 2020, Oracle and/or its affiliates. 
-## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
-
 # ------ Create PAN HA VMs  
 resource "oci_core_instance" "ha-vms" {
   depends_on = [oci_core_app_catalog_subscription.mp_image_subscription]
@@ -78,21 +75,6 @@ resource "oci_core_vnic_attachment" "untrust_vnic_attachment" {
   instance_id = oci_core_instance.ha-vms[count.index].id
   depends_on = [
     oci_core_vnic_attachment.trust_vnic_attachment
-  ]
-}
-
-resource "oci_core_vnic_attachment" "ha2_vnic_attachment" {
-  count = 2
-  create_vnic_details {
-    subnet_id              = local.use_existing_network ? var.ha2_subnet_id : oci_core_subnet.ha2_subnet[0].id
-    assign_public_ip       = "false"
-    skip_source_dest_check = "true"
-    nsg_ids                = [oci_core_network_security_group.nsg.id]
-    display_name           = "HA2"
-  }
-  instance_id = oci_core_instance.ha-vms[count.index].id
-  depends_on = [
-    oci_core_vnic_attachment.untrust_vnic_attachment
   ]
 }
 

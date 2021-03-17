@@ -1,6 +1,3 @@
-## Copyright © 2020, Oracle and/or its affiliates. 
-## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
-
 # resource "oci_objectstorage_bucket" "bootstrap" {
 #   compartment_id = var.compute_compartment_ocid
 #   name           = "${data.oci_identity_tenancy.tenancy.name}_bootstrap"

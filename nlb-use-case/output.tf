@@ -1,6 +1,3 @@
-## Copyright © 2020, Oracle and/or its affiliates. 
-## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
-
 output "subscription" {
   value = data.oci_core_app_catalog_subscriptions.mp_image_subscription.*.app_catalog_subscriptions
 }

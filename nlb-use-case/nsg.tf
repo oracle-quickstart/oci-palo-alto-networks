@@ -1,6 +1,3 @@
-## Copyright © 2020, Oracle and/or its affiliates. 
-## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
-
 resource "oci_core_network_security_group" "nsg" {
   compartment_id = var.network_compartment_ocid
   vcn_id         = local.use_existing_network ? var.vcn_id : oci_core_vcn.hub.0.id

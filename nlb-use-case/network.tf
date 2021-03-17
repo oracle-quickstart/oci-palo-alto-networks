@@ -1,6 +1,3 @@
-## Copyright © 2020, Oracle and/or its affiliates. 
-## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
-
 # ------ Create HUB VCN
 resource "oci_core_vcn" "hub" {
   count          = local.use_existing_network ? 0 : 1
@@ -188,29 +185,17 @@ resource "oci_core_subnet" "untrust_subnet" {
   prohibit_public_ip_on_vnic = "false"
 }
 
-# ------ Create Hub VCN PAN HA First subnet
-resource "oci_core_subnet" "ha2_subnet" {
-  count                      = local.use_existing_network ? 0 : 1
-  compartment_id             = var.network_compartment_ocid
-  vcn_id                     = oci_core_vcn.hub[count.index].id
-  cidr_block                 = var.ha2_subnet_cidr_block
-  display_name               = var.ha2_subnet_display_name
-  route_table_id             = oci_core_vcn.hub[count.index].default_route_table_id
-  dns_label                  = var.ha2_subnet_dns_label
-  prohibit_public_ip_on_vnic = "true"
-}
+# # ------ Create Cluster Trust Floating IP (Hub VCN)
+# resource "oci_core_private_ip" "cluster_trust_ip" {
+#   vnic_id      = data.oci_core_vnic_attachments.trust_attachments.vnic_attachments.0.vnic_id
+#   display_name = "firewall_trust_secondary_private"
+# }
 
-# ------ Create Cluster Trust Floating IP (Hub VCN)
-resource "oci_core_private_ip" "cluster_trust_ip" {
-  vnic_id      = data.oci_core_vnic_attachments.trust_attachments.vnic_attachments.0.vnic_id
-  display_name = "firewall_trust_secondary_private"
-}
-
-# ------ Create Cluster Untrust Floating IP (Hub VCN)
-resource "oci_core_private_ip" "cluster_untrust_ip" {
-  vnic_id      = data.oci_core_vnic_attachments.untrust_attachments.vnic_attachments.0.vnic_id
-  display_name = "firewall_untrust_secondary_private"
-}
+# # ------ Create Cluster Untrust Floating IP (Hub VCN)
+# resource "oci_core_private_ip" "cluster_untrust_ip" {
+#   vnic_id      = data.oci_core_vnic_attachments.untrust_attachments.vnic_attachments.0.vnic_id
+#   display_name = "firewall_untrust_secondary_private"
+# }
 
 # frontend cluster ip 
 resource "oci_core_public_ip" "cluster_untrust_public_ip" {
