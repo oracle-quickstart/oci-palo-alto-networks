@@ -1,10 +1,7 @@
-## Copyright © 2020, Oracle and/or its affiliates.
-## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
-
 # Title shown in Application Information tab.
 title: HA Palo Alto Networks IaaS Next-Gen Firewall - BYOL
 # Sub Title shown in Application Information tab.
-description: Add Correct description
+description: This Terraform Module deploys Hub and Spoke Architecture with Palo Alto Networks VM Series Firewall in HA (active/passive) mode.
 schemaVersion: 1.1.0
 version: "20210210"
 

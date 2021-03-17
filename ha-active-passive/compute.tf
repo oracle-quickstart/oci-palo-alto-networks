@@ -1,6 +1,3 @@
-## Copyright © 2020, Oracle and/or its affiliates. 
-## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
-
 # ------ Create PAN HA VMs  
 resource "oci_core_instance" "ha-vms" {
   depends_on = [oci_core_app_catalog_subscription.mp_image_subscription]

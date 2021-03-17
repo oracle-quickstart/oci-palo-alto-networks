@@ -1,6 +1,3 @@
-## Copyright © 2020, Oracle and/or its affiliates. 
-## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
-
 # ------ Get Image Agreement 
 resource "oci_core_app_catalog_listing_resource_version_agreement" "mp_image_agreement" {
   count = local.mp_subscription_enabled

@@ -1,6 +1,4 @@
-## Copyright © 2020, Oracle and/or its affiliates. 
-## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
-
+# ------ Create Network Security Group for Hub VCN 
 resource "oci_core_network_security_group" "nsg" {
   compartment_id = var.network_compartment_ocid
   vcn_id         = local.use_existing_network ? var.vcn_id : oci_core_vcn.hub.0.id
@@ -8,6 +6,7 @@ resource "oci_core_network_security_group" "nsg" {
   display_name = var.nsg_display_name
 }
 
+# ------ Add Engress Rule to Network Security Group 
 resource "oci_core_network_security_group_security_rule" "rule_egress_all" {
   network_security_group_id = oci_core_network_security_group.nsg.id
   direction                 = "EGRESS"
@@ -15,6 +14,7 @@ resource "oci_core_network_security_group_security_rule" "rule_egress_all" {
   destination               = "0.0.0.0/0"
 }
 
+# ------ Add Ingress Rule to Network Security Group 
 resource "oci_core_network_security_group_security_rule" "rule_ingress_all" {
   network_security_group_id = oci_core_network_security_group.nsg.id
   direction = "INGRESS"
@@ -22,13 +22,14 @@ resource "oci_core_network_security_group_security_rule" "rule_ingress_all" {
   source    = "0.0.0.0/0"
 }
 
-
+# ------ Create Network Security Group for Web VCN 
 resource "oci_core_network_security_group" "nsg_web" {
   compartment_id = var.network_compartment_ocid
   vcn_id         = local.use_existing_network ? var.vcn_id : oci_core_vcn.web.0.id
   display_name = var.web_nsg_display_name
 }
 
+# ------ Add Engress Rule to Network Security Group 
 resource "oci_core_network_security_group_security_rule" "web_rule_egress_all" {
   network_security_group_id = oci_core_network_security_group.nsg_web.id
   direction                 = "EGRESS"
@@ -36,6 +37,7 @@ resource "oci_core_network_security_group_security_rule" "web_rule_egress_all" {
   destination               = "0.0.0.0/0"
 }
 
+# ------ Add Ingress Rule to Network Security Group 
 resource "oci_core_network_security_group_security_rule" "web_rule_ingress_all" {
   network_security_group_id = oci_core_network_security_group.nsg_web.id
   direction = "INGRESS"
@@ -43,13 +45,14 @@ resource "oci_core_network_security_group_security_rule" "web_rule_ingress_all" 
   source    = "0.0.0.0/0"
 }
 
-
+# ------ Create Network Security Group for DB VCN 
 resource "oci_core_network_security_group" "nsg_db" {
   compartment_id = var.network_compartment_ocid
   vcn_id         = local.use_existing_network ? var.vcn_id : oci_core_vcn.db.0.id
   display_name = var.db_nsg_display_name
 }
 
+# ------ Add Egress Rule to Network Security Group 
 resource "oci_core_network_security_group_security_rule" "db_rule_egress_all" {
   network_security_group_id = oci_core_network_security_group.nsg_db.id
   direction                 = "EGRESS"
@@ -57,6 +60,7 @@ resource "oci_core_network_security_group_security_rule" "db_rule_egress_all" {
   destination               = "0.0.0.0/0"
 }
 
+# ------ Add Ingress Rule to Network Security Group 
 resource "oci_core_network_security_group_security_rule" "db_rule_ingress_all" {
   network_security_group_id = oci_core_network_security_group.nsg_db.id
   direction = "INGRESS"
