@@ -1,7 +1,7 @@
 # Title shown in Application Information tab.
 title: Palo Alto Networks Next-Gen Firewall with Flexible Network Load Balancer- BYOL
 # Sub Title shown in Application Information tab.
-description: Add Correct description
+description: This terraform code deploys Network Load Balancer and Palo Alto VM Series Firewalls.
 schemaVersion: 1.1.0
 version: "20210210"
 
