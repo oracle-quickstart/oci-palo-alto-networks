@@ -28,13 +28,13 @@ data "oci_identity_tenancy" "tenancy" {
 }
 
 
-# ------ Get Your Home Region
-data "oci_identity_regions" "home-region" {
-  filter {
-    name   = "key"
-    values = [data.oci_identity_tenancy.tenancy.home_region_key]
-  }
-}
+# # ------ Get Your Home Region
+# data "oci_identity_regions" "home-region" {
+#   filter {
+#     name   = "key"
+#     values = [data.oci_identity_tenancy.tenancy.home_region_key]
+#   }
+# }
 
 # ------ Get the Tenancy ID and AD Number
 data "oci_identity_availability_domain" "ad" {
