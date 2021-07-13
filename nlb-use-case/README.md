@@ -8,6 +8,9 @@ For details of the architecture, see [_Set up a hub-and-spoke network topology_]
 
 ![](./images/nlb.png)
 
+## Validated Version Details
+
+We have validated v10.0.3 PAN VM Series Firewall for this architecture.
 
 ## Prerequisites
 
@@ -147,9 +150,12 @@ Below tables shows that when you use `xml` configuration atleast you update belo
 
 | Comment                               | Current Value in XML File | Expected Value                                     |
 |---------------------------------------|---------------------------|----------------------------------------------------|
+| Firewall Name                         | FWA                       | Make sure you update as per Firewall1 or Firewall2 |
 | Firewall Mgmt Interface Private IP    | 192.168.0.181             | Make sure you update as per Firewall1 or Firewall2 |
 | Firewall Trust Interface Private IP   | 192.168.2.233             | Make sure you update as per Firewall1 or Firewall2 |
 | Firewall Untrust Interface Private IP | 192.168.1.10              | Make sure you update as per Firewall1 or Firewall2 |
+| Web Spoke VM 1                        | 10.0.0.11                 | Make sure you update as per your Web Spoke VM IPs  |
+| DB Spoke VM 1                         | 10.0.1.48                 | Make sure you update as per your DB Spoke VM IPs   |
 
 
 ## Firewall-1 Configuration 

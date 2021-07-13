@@ -1,12 +1,12 @@
-# High Availability Active/Passive - Reference Architecture
+# Network Load Balancer Sandwich Topology - Reference Architecture
 
-We are using hub-and-spoke architecture (often called as star topology) to achieve High Availability with Palo Alto Networks VM Sereis Firewall. This architecture has a central component (the hub) that's connected to multiple networks around it, like a spoke. We are using Palo Alto Networks VM series firewall BOYL Listing from OCI Marketplace.
+We are using hub-and-spoke architecture (often called as star topology), dynamic routing gateway and flexible network load balancer with Palo Alto Networks VM Sereis Firewall. This architecture has a central component (the hub) that's connected to multiple networks around it, like a spoke. We are using Palo Alto Networks VM series firewall BOYL Listing from OCI Marketplace.
 
 For details of the architecture, see [_Set up a hub-and-spoke network topology_](https://docs.oracle.com/en/solutions/hub-spoke-network/index.html).
 
 ## Architecture Diagram
 
-![](./images/hub-spoke-diagram.png)
+**Diagram will be updated**
 
 ## Validated Version Details
 
@@ -17,7 +17,7 @@ We have validated v10.0.3 PAN VM Series Firewall for this architecture.
 You should complete below pre-requisites before proceeding to next section:
 - You have an active Oracle Cloud Infrastructure Account.
   - Tenancy OCID, User OCID, Compartment OCID, Private and Public Keys are setup properly.
-- Permission to `manage` the following types of resources in your Oracle Cloud Infrastructure tenancy: `vcns`, `internet-gateways`, `route-tables`, `security-lists`, `local-peering-gateways`, `subnets`, `dynamic-groups` and `instances`.
+- Permission to `manage` the following types of resources in your Oracle Cloud Infrastructure tenancy: `vcns`, `internet-gateways`, `route-tables`, `security-lists`,`dynamic-routing-gateways`, `subnets`, `network-load-balancers` and `instances`.
 - Quota to create the following resources: 3 VCNS, 6 subnets, and 6 compute instance.
 
 If you don't have the required permissions and quota, contact your tenancy administrator. See [Policy Reference](https://docs.cloud.oracle.com/en-us/iaas/Content/Identity/Reference/policyreference.htm), [Service Limits](https://docs.cloud.oracle.com/en-us/iaas/Content/General/Concepts/servicelimits.htm), [Compartment Quotas](https://docs.cloud.oracle.com/iaas/Content/General/Concepts/resourcequotas.htm).
@@ -33,7 +33,7 @@ You can deploy this architecture using two approach explained in each section:
 
 In this section you will follow each steps given below to create this architecture:
 
-1. Click [![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://console.us-phoenix-1.oraclecloud.com/resourcemanager/stacks/create?region=home&zipUrl=https://github.com/oracle-quickstart/oci-palo-alto-networks/raw/master/ha-active-passive/resource-manager/pan-ha.zip)
+1. Click [![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://console.us-phoenix-1.oraclecloud.com/resourcemanager/stacks/create?region=home&zipUrl=https://github.com/oracle-quickstart/oci-palo-alto-networks/raw/master/drg-nlb-use-case/resource-manager/pan-drg-nlb.zip)
 
     > If you aren't already signed in, when prompted, enter the tenancy and user credentials.
 
@@ -65,7 +65,7 @@ In this section you will use **Terraform** locally to create this architecture:
 
     ```
     git clone https://github.com/oracle-quickstart/oci-paloaltonetworks.git
-    cd oci-paloaltonetworks/paloaltonetworks-ha/
+    cd oci-paloaltonetworks/drg-nlb-use-case/
     ls
     ```
 
@@ -119,12 +119,12 @@ In this section you will use **Terraform** locally to create this architecture:
 
 ## Palo Alto Networks Firewall Configuration 
 
-This section will include necessary configuration which you need to configure to support HA (active/passive) use-case. 
+This section will include necessary configuration which you need to configure to support active/active use-case. 
 
 Once you deploy the infrastructure either using Oracle Resource Manager or Terraform CLI. We have to upload configuration on Palo Alto Networks VM series Firewall. 
 
 
-> This section will be automated as Palo Alto Networks personal add bootstrap configuration using either user-data or bucket. You can follow  [Config Directory](./config-ha) directory for the time being to support routes, policies, interfaces, HA config. 
+> This section will be automated as Palo Alto Networks personal add bootstrap configuration using either user-data or bucket. You can follow  [Config Directory](./config-ha) directory for the time being to support routes, policies, interfaces config. Make sure that you update below values in xml file before you proceed to load the configuration on Firewall.
 
 Before you proceed to next section, you should setup a admin password through CLI (Instrcutions are printed after a successful run of this code) using below commands: 
 
@@ -137,7 +137,7 @@ SSH Key
 For example:
 $ ssh –i id_rsa admin@${oci_core_instance.ha-vms.0.public_ip}
 3.  Set the user password for the administrator. 
-    - Enter the command: set user admin password
+    - Enter the command to go to config mode: configure
     - Change the password using command: set mgt-config users admin password
 4. Save the configuration. Enter the command: commit
 After saving the password, you should run the first time wizard in the VM Series UI:
@@ -145,6 +145,17 @@ After saving the password, you should run the first time wizard in the VM Series
     - Connect to the VM Series UI Firewall-1: https://${oci_core_instance.ha-vms.0.public_ip}
     - Connect to the VM Series UI Firewall-2: https://${oci_core_instance.ha-vms.1.public_ip}
 ```
+
+Below tables shows that when you use `xml` configuration atleast you update below three values present in the file either single or multiple times based on your instance values: 
+
+| Comment                               | Current Value in XML File | Expected Value                                     |
+|---------------------------------------|---------------------------|----------------------------------------------------|
+| Firewall Name                         | FWA                       | Make sure you update as per Firewall1 or Firewall2 |
+| Firewall Mgmt Interface Private IP    | 192.168.0.181             | Make sure you update as per Firewall1 or Firewall2 |
+| Firewall Trust Interface Private IP   | 192.168.2.233             | Make sure you update as per Firewall1 or Firewall2 |
+| Firewall Untrust Interface Private IP | 192.168.1.10              | Make sure you update as per Firewall1 or Firewall2 |
+| Web Spoke VM 1                        | 10.0.0.11                 | Make sure you update as per your Web Spoke VM IPs  |
+| DB Spoke VM 1                         | 10.0.1.48                 | Make sure you update as per your DB Spoke VM IPs   |
 
 ## Firewall-1 Configuration 
 
@@ -165,6 +176,8 @@ At some point you will need to enable jumbo frame you can do this using below st
 2. Select Device > Session > Setting > Setting button 
 3. Check jumbo frame icon. 
 
+We are using `HTTPS` healthprobe configuration on each interfaces to make sure they are healthy behind NLBs. This is included in XML configuration. 
+
 ## Firewall-2 Configuration 
 
 We have added required configuration for Palo Alto Networks Firewall 2 (HA Cluster Second Instance) [Firewall B Configuration](./config-ha/firewallB.xml). You can use this as a reference and upload this on your Firewall. Configuration should be same but you can compare your configuration with your Firewall Instances.
@@ -183,17 +196,17 @@ At some point you will need to enable jumbo frame you can do this using below st
 2. Select Device > Session > Setting > Setting button 
 3. Check jumbo frame icon. 
 
+We are using `HTTPS` healthprobe configuration on each interfaces to make sure they are healthy behind NLBs. This is included in XML configuration. 
 
-## Some Sample Configuration Pics on Palo Alto Networks Firewall 
+## Some Useful Configuration Pics on Palo Alto Networks Firewall 
 
 I am attaching some sample configuration from one of the Firewall-B for your reference as below: 
 
 1. Interfaces Configuration 
     - Ethernet1/1 ; Trust Interface 
     - Ethernet1/2 ; Untrust Interface 
-    - Ethernet1/3 ; HA Interface
 
-![](./images/FirewallB_Interfaces.png)
+![](./images/interfaces.png)
 
 
 2. Security Policies 
@@ -202,30 +215,25 @@ I am attaching some sample configuration from one of the Firewall-B for your ref
 
 ![](./images/FirewallB_Policies.png)
 
-3. HA Communication 
-    - HA 1 is tied to Managment Interface 
-    - HA 2 is tied to ethernet1/3 interface 
 
-![](./images/FirewallB_HA.png)
-
-
-4. Default Routes Configuration 
+3. Default Routes Configuration 
     - Default route via untrust interface gateway (eth1/2)
     - Static Routes for Spoke VCNs and Oracle Storage Networks via trust interface gateway (eth1/1)
 
 ![](./images/FirewallB_Routes.png)
 
-5. NAT Policies 
+4. NAT Policies 
     - We have two NAT policies 
-        - First: Traffic to Web Spoke VCN so end user can connect to VM from outside using public IP of untrust interface of Firewall (Floating IP)
-        - Second: Traffic towards interent from Spoke VCNs
+        - First: Traffic between Spoke VCNs so that get translated to trust interface of Firewall
+        - Second: Traffic towards interent from Spoke VCNs so that get translated to untrust interface of Firewall
 
-6. Jumbo Frame Configuration 
+![](./images/nat.png)
+
+5. Jumbo Frame Configuration 
     - End user need to enable this manually and restart each firewall VM afterwards. 
     - Below image shows where you need to go to enable jumbo frame. 
 
 ![](./images/FirewallB_JumboFrame.png)
-
 
 
 ## Feedback 
