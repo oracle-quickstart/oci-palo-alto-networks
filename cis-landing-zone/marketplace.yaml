@@ -1,0 +1,230 @@
+# Title shown in Application Information tab.
+title: CIS Benchmark HA Palo Alto Networks IaaS Next-Gen Firewall - BYOL
+# Sub Title shown in Application Information tab.
+description: This Terraform Module Palo Alto Networks VM Series Firewall in HA (active/passive) mode with using CIS benchmark details.
+schemaVersion: 1.1.0
+version: "20210210"
+
+# URL of Logo Icon used on Application Information tab. Logo must be 130x130 pixels.
+# (Optional)
+logoUrl: https://cloudmarketplace.oracle.com/marketplace/content?contentId=87036907
+
+# Used in Application Information tab to Hyperlink Title and Logo to the Marketplace
+# Listing.
+# Also used to link to Listing Usage section for "View Instructions".
+# (Optional) If it is missing, Application Information uses the
+# "marketplace-listing-id" tag for the same purpose.
+source:
+  type: marketplace
+  reference: 71285857
+
+locale: "en"
+variableGroups:
+  - title: "Hidden Variable Group"
+    visible: false
+    variables:
+      - tenancy_ocid
+      - mp_listing_id
+      - mp_listing_resource_id
+      - mp_listing_resource_version
+      - mp_subscription_enabled
+      - availability_domain_name
+      - template_name
+      - template_version
+      - network_strategy_enum
+
+  - title: "Common Compute Configuration"
+    variables:
+      - vm_compute_shape
+      - vm_display_name
+      - vm_flex_shape_ocpus
+      - ssh_public_key
+      - instance_launch_options_network_type
+      - vcn_names
+      - service_label
+      - vcn_cidrs
+
+  - title: "CIS Benchmark Variables"
+    variables:
+      - network_compartment
+      - network_strategy
+      - drg_ocid
+      - firewall_vcn
+      - web_vcn
+      - db_vcn
+
+variables:
+  # Hidden variables
+  tenancy_ocid:
+    type: string
+    title: Tenancy ID
+    description: The Oracle Cloud Identifier (OCID) for your tenancy
+    required: true
+
+  mp_listing_id:
+    type: string
+    required: true
+    description: Marketplace Listing ID
+
+  mp_listing_resource_id:
+    type: oci:core:image:id
+    required: true
+    description: Marketplace Image OCID
+    dependsOn:
+      compartmentId: compartment_ocid
+
+  mp_listing_resource_version:
+    type: string
+    required: true
+    description: Marketplace Listing package version
+
+  availability_domain_name:
+    type: oci:identity:availabilitydomain:name
+    dependsOn:
+      compartmentId: compartment_ocid
+    required: true
+    default: 1
+    title: Availability Domain
+    description: Availability Domain
+
+  # variables
+  vm_compute_shape:
+    type: oci:core:instanceshape:name
+    default: VM.Standard2.4
+    title: Firewall Compute Shape
+    required: true
+    dependsOn:
+      compartmentId: compartment_ocid
+      imageId: mp_listing_resource_id
+
+  vm_display_name:
+    type: string
+    required: true
+    default: VM-Series-Firewall
+    title: Firewall Instance Name(s)
+    description: The name of the Instance of Firewalls HA
+
+  vm_flex_shape_ocpus:
+    visible:
+      eq:
+        - vm_compute_shape
+        - "VM.Standard.E3.Flex"
+    type: integer
+    default: 4
+    title: Flex Shape OCPUs
+    minimum: 4
+    maximum: 64
+    required: false
+
+  ssh_public_key:
+    type: string
+    required: true
+    title: Public SSH Key string
+    description: Public SSH Key to access VM via SSH
+
+  instance_launch_options_network_type:
+    type: enum
+    default: "PARAVIRTUALIZED"
+    title: Launch options
+    description: NIC Attachment Type
+    enum:
+      - "PARAVIRTUALIZED"
+      - "VFIO"
+    required: true
+
+  network_compartment:
+    type: oci:identity:compartment:id
+    required: true
+    title: CIS Bencmark Network Compartment  
+    description: CIS Benchmark Network Compartment Value
+    default: compartment_ocid    
+
+  # Network Type Options
+  network_strategy:
+    type: enum
+    title: Network Strategy
+    description: Create or use existing Network Stack (VCN and Subnet)
+    enum:
+      - "Create New VCN and Subnet"
+      - "Use Existing VCN and Subnet"
+    required: true
+    default: "Use Existing VCN and Subnet"
+
+  drg_ocid:
+    visible: #($network_strategy  == "Use Existing VCN and Subnet")
+      eq:
+        - network_strategy 
+        - "Use Existing VCN and Subnet"
+    type: oci:core:drg:id
+    dependsOn:
+      compartmentId: network_compartment
+    required: true
+    title: CIS Bencmark DRG OCID 
+    description: CIS Benchmark DRG OCID Value
+
+  firewall_vcn:
+    visible: #($network_strategy  == "Use Existing VCN and Subnet")
+      eq:
+        - network_strategy 
+        - "Use Existing VCN and Subnet"
+    type: oci:core:vcn:id
+    dependsOn:
+      compartmentId: network_compartment
+    required: true
+    title: CIS Bencmark Firewall/Hub VCN  
+    description: CIS Benchmark Firewall/Hub VCN Value
+
+  web_vcn:
+    visible: #($network_strategy  == "Use Existing VCN and Subnet")
+      eq:
+        - network_strategy 
+        - "Use Existing VCN and Subnet"
+    type: oci:core:vcn:id
+    dependsOn:
+      compartmentId: network_compartment
+    required: true
+    title: CIS Bencmark Web VCN  
+    description: CIS Benchmark Web VCN Value
+
+  db_vcn:
+    visible: #($network_strategy  == "Use Existing VCN and Subnet")
+      eq:
+        - network_strategy 
+        - "Use Existing VCN and Subnet"
+    type: oci:core:vcn:id
+    dependsOn:
+      compartmentId: network_compartment
+    required: true
+    title: CIS Bencmark DB VCN 
+    description: CIS Benchmark DB VCN Value
+
+outputs:
+  instance_https_urls:
+    type: link
+    title: Open Palo Alto HA-VM Portals
+    visible: true
+
+  firewallA_instance_public_ips:
+    type: link
+    title: Firewall-A Instance Public IP
+    visible: true
+
+  firewallA_instance_private_ips:
+    type: link
+    title: Firewall-A Instance Private IP
+    visible: true
+
+  firewallB_instance_public_ips:
+    type: link
+    title: Firewall-B Instance Public IP
+    visible: true
+
+  firewallB_instance_private_ips:
+    type: link
+    title: Firewall-B Instance Private IP
+    visible: true
+
+  initial_instruction:
+    type: string
+    title: Initial Instruction
+    visible: false

@@ -1,0 +1,15 @@
+tenancy_ocid             = "ocid1.tenancy.oc1..XXX"
+user_ocid                = "ocid1.user.oc1..XXX"
+network_compartment      = "ocid1.compartment.oc1..XXXX"
+drg_ocid                 = "ocid1.drg.oc1.iad.XXX"
+firewall_vcn             = "ocid1.vcn.oc1.iad.XXX"
+db_vcn                   = "ocid1.vcn.oc1.iad.XXX"
+web_vcn                  = "ocid1.vcn.oc1.iad.XXX"
+fingerprint              = "67:ce:e1:75XXXX:XXX"
+private_key_path         = "/Users/<user>/.oci/oci_api_key.pem"
+private_key_password     = ""
+region                   = "us-ashburn-1"
+service_label            = "DemoPAN"
+vcn_names                = ["web", "db"]
+ssh_public_key           = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDjgV86TowXpH9pozHXXX"
+vcn_cidrs                = ["10.0.0.0/20", "10.0.16.0/20"]
