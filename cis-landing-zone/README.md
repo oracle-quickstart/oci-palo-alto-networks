@@ -2,7 +2,7 @@
 
 CIS Landing Zone template deploys a standardized environment in an Oracle Cloud Infrastructure (OCI) tenancy that helps organizations to comply with the [CIS OCI Foundations Benchmark v1.1](https://www.cisecurity.org/benchmark/oracle_cloud/). In this repo, you will be utliizing CIS landing Zone which you have created successfully then deploy Palo Alto Networks VM Sereis Firewall in high availablity use-case i.e. active/passive with dynamic routing gateway to communicate between VCNs. 
 
-For details of CIS Landing Zone, see [_CIS Landing Zone Enviornment_](https://github.com/oracle-quickstart/oci-cis-landingzone-quickstart/tree/main).
+For details of CIS Landing Zone, see [_CIS Landing Zone Enviornment_](https://github.com/oracle-quickstart/oci-cis-landingzone-quickstart).
 
 ## Validated Version Details
 
@@ -15,7 +15,8 @@ You should complete below pre-requisites before proceeding to next section:
   - Tenancy OCID, User OCID, Compartment OCID, Private and Public Keys are setup properly.
 - Permission to `manage` the following types of resources in your Oracle Cloud Infrastructure tenancy: `vcns`, `internet-gateways`, `route-tables`, `security-lists`,`dynamic-routing-gateways`, `subnets`, `network-load-balancers` and `instances`.
 - Quota to create the following resources: 3 VCNS, 6 subnets, and 6 compute instance.
-- Run successfully CIS landing zone hub/spoke architecture which supports Firewall Use-Case
+- Successfully Run CIS landing zone hub/spoke architecture which supports Firewall Use-Case. 
+  - You will need to follow **Executing Instructions** outlined on [CIS Landing Zone Page](https://github.com/oracle-quickstart/oci-cis-landingzone-quickstart)
   - You will be using some output variables from this pre-req work in your deployment. 
 
 ## Deployment Options
@@ -50,11 +51,9 @@ In this section you will follow each steps given below to create this architectu
 
 9. If you no longer require your infrastructure, return to the Stack Details page and **Terraform Actions**, and select **Destroy**.
 
-
 ## Deploy Using the Terraform CLI
 
 In this section you will use **Terraform** locally to create this architecture: 
-
 
 1. Create a local copy of this repo using below command on your terminal: 
 
@@ -116,6 +115,17 @@ In this section you will use **Terraform** locally to create this architecture:
     ```bash
     terraform destroy
     ```
+
+## Palo Alto Networks Subnets/Interfaces Mapping
+
+Since you are using **CIS landing zone** to create your environment, you will see different subnet name but to clear any confusion you can follow table which reflect subnet names as per VM Series Firewall standards: 
+
+    | Recommended  | Used Name                                |
+    |--------------|------------------------------------------|
+    | Management   | Mgmt                                     |
+    | Untrust      | Outdoor                                  |
+    | Trust        | Indoor                                   |
+    | HA           | HA                                       |
 
 ## Feedback 
 
