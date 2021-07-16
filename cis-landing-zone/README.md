@@ -1,6 +1,6 @@
 # CIS Landing Zone - Palo Alto Networks 
 
-CIS Landing Zone template deploys a standardized environment in an Oracle Cloud Infrastructure (OCI) tenancy that helps organizations to comply with the [CIS OCI Foundations Benchmark v1.1](https://www.cisecurity.org/benchmark/oracle_cloud/). In this repo, you will be utliizing CIS landing Zone which you have created successfully then deploy Palo Alto Networks VM Sereis Firewall in high availablity use-case i.e. active/passive with dynamic routing gateway to communicate between VCNs. 
+CIS Landing Zone template deploys a standardized environment in an Oracle Cloud Infrastructure (OCI) tenancy that helps organizations to comply with the [CIS OCI Foundations Benchmark v1.1](https://www.cisecurity.org/benchmark/oracle_cloud/). In this repo, you will be utilizing CIS landing Zone which you have created successfully then deploy Palo Alto Networks VM Series Firewall in high availability use-case i.e. active/passive with dynamic routing gateway to communicate between VCNs. 
 
 For details of CIS Landing Zone, see [_CIS Landing Zone Enviornment_](https://github.com/oracle-quickstart/oci-cis-landingzone-quickstart).
 
@@ -126,6 +126,7 @@ Since you are using **CIS landing zone** to create your environment, you will se
     | Untrust      | Outdoor                                  |
     | Trust        | Indoor                                   |
     | HA           | HA                                       |
+
 
 ## Feedback 
 
