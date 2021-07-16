@@ -3,6 +3,11 @@ data "oci_identity_availability_domains" "ads" {
   compartment_id = var.tenancy_ocid
 }
 
+# ------ Get Network Compartment Name for Policies
+data "oci_identity_compartment" "network_compartment" {
+    id = var.network_compartment
+}
+
 # ------ Get the Mgmt Subnet Data
 data "oci_core_subnets" "dmz_vcn_subnets_mgmt" {
   compartment_id = var.network_compartment

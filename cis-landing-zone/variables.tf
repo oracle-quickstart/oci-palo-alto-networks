@@ -145,3 +145,27 @@ variable "network_strategy_enum" {
     USE_EXISTING_VCN_SUBNET="Use Existing VCN and Subnet"
   }
 }
+
+######################
+#Dynamic Group Values#
+######################
+
+variable "dynamic_group_description" {
+  description = "Dynamic Group to Support Firewall HA"
+  default     = "Dynamic Group to Support Firewall HA"
+}
+
+variable "dynamic_group_name" {
+  description = "Dynamic Group Name"
+  default     = "firewall-ha-dynamic-group"
+}
+
+variable "dynamic_group_policy_description" {
+  description = "Dynamic Group Policy to allow Firewall HA floating IP switch"
+  default     = "Dynamic Group Policy for Firewall HA"
+}
+
+variable "dynamic_group_policy_name" {
+  description = "Dynamic Group Policy PAN"
+  default     = "firewall-ha-dynamic-group-policy"
+}
