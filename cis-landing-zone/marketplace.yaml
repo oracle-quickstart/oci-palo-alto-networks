@@ -53,6 +53,13 @@ variableGroups:
       - web_vcn
       - db_vcn
 
+  - title: "Identity Configuration"
+    variables:
+      - dynamic_group_description
+      - dynamic_group_name
+      - dynamic_group_policy_description
+      - dynamic_group_policy_name
+
 variables:
   # Hidden variables
   tenancy_ocid:
@@ -197,6 +204,34 @@ variables:
     required: true
     title: CIS Bencmark DB VCN 
     description: CIS Benchmark DB VCN Value
+
+  dynamic_group_description:
+    type: string
+    required: true
+    default: "Dynamic Group to Support Firewall HA"
+    title: Dynamic Group to Support Firewall HA
+    description: The description of the dynamic group to manage Firewall HA
+
+  dynamic_group_name:
+    type: string
+    required: true
+    default: "firewall-ha-dynamic-group"
+    title: Dynamic Group Name
+    description: The name of the dynamic group to manage Firewall HA
+
+  dynamic_group_policy_description:
+    type: string
+    required: true
+    default: "Dynamic Group Policy for Firewall HA"
+    title: Dynamic Group Policy to allow Firewall HA floating IP switch
+    description: The name of the dynamic group to manage Firewall HA
+
+  dynamic_group_policy_name:
+    type: string
+    required: true
+    default: "firewall-ha-dynamic-group-policy"
+    title: Dynamic Group Policy PAN
+    description: The name of the dynamic group to manage Firewall HA
 
 outputs:
   instance_https_urls:
