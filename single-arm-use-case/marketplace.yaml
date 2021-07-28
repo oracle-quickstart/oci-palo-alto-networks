@@ -1,0 +1,838 @@
+# Title shown in Application Information tab.
+title: Palo Alto Networks Next-Gen Firewall with Dynamic Routing Gateway - BYOL
+# Sub Title shown in Application Information tab.
+description: This terraform code deploy Dynamic Routing Gateway and Palo Alto VM Series Firewall.
+schemaVersion: 1.1.0
+version: "20210210"
+
+# URL of Logo Icon used on Application Information tab. Logo must be 130x130 pixels.
+# (Optional)
+logoUrl: https://cloudmarketplace.oracle.com/marketplace/content?contentId=87036907
+
+# Used in Application Information tab to Hyperlink Title and Logo to the Marketplace
+# Listing.
+# Also used to link to Listing Usage section for "View Instructions".
+# (Optional) If it is missing, Application Information uses the
+# "marketplace-listing-id" tag for the same purpose.
+source:
+  type: marketplace
+  reference: 71285857
+
+locale: "en"
+variableGroups:
+  - title: "Hidden Variable Group"
+    visible: false
+    variables:
+      - tenancy_ocid
+      - region
+      - mp_listing_id
+      - mp_listing_resource_id
+      - mp_listing_resource_version
+      - mp_subscription_enabled
+      - availability_domain_number
+      - network_strategy_enum
+      - subnet_type_enum
+      - nsg_config_enum
+      - template_name
+      - template_version
+
+  - title: "Common Compute Configuration"
+    variables:
+      - compute_compartment_ocid
+      - vm_compute_shape
+      - spoke_vm_compute_shape
+      - vm_flex_shape_ocpus
+      - spoke_vm_flex_shape_ocpus
+      - availability_domain_name
+      - ssh_public_key
+      - instance_launch_options_network_type
+
+  - title: "Common Network Configuration"
+    variables:
+      - network_compartment_ocid
+      - network_strategy
+      - subnet_span
+      - nsg_whitelist_ip
+      - nsg_display_name
+
+  - title: "Firewall Hub Configuration"
+    variables:
+      - vm_display_name
+      - vcn_id
+      - db_vcn_id
+      - web_vcn_id
+      - vcn_display_name
+      - vcn_cidr_block
+      - vcn_dns_label
+      - mangement_subnet_id
+      - mangement_subnet_display_name
+      - mangement_subnet_cidr_block
+      - mangement_subnet_dns_label
+      - untrust_subnet_id
+      - untrust_subnet_display_name
+      - untrust_subnet_cidr_block
+      - untrust_subnet_dns_label
+      - use_existing_ip
+      - public_routetable_display_name
+      - drg_routetable_display_name
+      - sgw_routetable_display_name
+  
+  - title: "Web Spoke Configuration"
+    variables:
+      - vm_display_name_web
+      - web_vcn_cidr_block
+      - web_vcn_dns_label
+      - web_vcn_display_name
+      - web_lb_subnet_id
+      - web_lb_subnet_cidr_block
+      - web_lb_subnet_display_name
+      - web_lb_subnet_dns_label
+      - backend_port
+      - web_nsg_display_name
+
+  - title: "DB Spoke Configuration"
+    variables:
+      - vm_display_name_db
+      - db_vcn_cidr_block
+      - db_vcn_dns_label
+      - db_vcn_display_name
+      - db_transit_subnet_id
+      - db_transit_subnet_cidr_block
+      - db_transit_subnet_display_name
+      - db_transit_subnet_dns_label
+      - db_nsg_display_name
+
+variables:
+  # Hidden variables
+  tenancy_ocid:
+    type: string
+    title: Tenancy ID
+    description: The Oracle Cloud Identifier (OCID) for your tenancy
+    required: true
+
+  compute_compartment_ocid:
+    type: oci:identity:compartment:id
+    required: true
+    title: Compartment OCID
+    description: The compartment in which to create all Compute resources
+    default: compartment_ocid
+
+  network_compartment_ocid:
+    type: oci:identity:compartment:id
+    required: true
+    title: Network Compartment OCID
+    description: The compartment in which to create all Network resources
+    default: compartment_ocid
+
+  region:
+    type: oci:identity:region:name
+    title: Region
+    description: The region in which to create all resources
+    required: true
+
+  availability_domain_name:
+    type: oci:identity:availabilitydomain:name
+    dependsOn:
+      compartmentId: compartment_ocid
+    required: true
+    default: 1
+    title: Availability Domain
+    description: Availability Domain
+
+  availability_domain_number:
+    type: string
+    required: false
+    description: Availability Domain Number (Not used)
+
+  ssh_public_key:
+    type: string
+    required: true
+    title: Public SSH Key string
+    description: Public SSH Key to access VM via SSH
+
+  vm_display_name:
+    type: string
+    required: true
+    default: PaloAltoNetwork-Firewall
+    title: Firewall Instance Name(s)
+    description: The name of the Instance of Firewall HA
+
+  vm_display_name_web:
+    type: string
+    required: true
+    default: web-app
+    title: Web Instance Name(s)
+    description: The name of the Instance of Web Tier VMs
+
+  vm_display_name_db:
+    type: string
+    required: true
+    default: db-app
+    title: DB Instance Name(s)
+    description: The name of the Instance of DB Tier VMs
+
+  backend_port:
+    required: true
+    type: integer
+    default: 80
+    title: Web Tier LB Backend Port
+    description: The port of the web tier Application backend port.
+
+  vm_compute_shape:
+    type: oci:core:instanceshape:name
+    default: VM.Standard2.4
+    title: Firewall Compute Shape
+    required: true
+    dependsOn:
+      compartmentId: compartment_ocid
+      imageId: mp_listing_resource_id
+
+  spoke_vm_compute_shape:
+    type: oci:core:instanceshape:name
+    default: VM.Standard2.2
+    title: Spoke Compute Shape
+    required: true
+    description: Compute Shape of Web/Db Tier VMs
+    dependsOn:
+      compartmentId: compartment_ocid
+
+  vm_flex_shape_ocpus:
+    visible:
+      eq:
+        - vm_compute_shape
+        - "VM.Standard.E3.Flex"
+    type: integer
+    default: 4
+    title: Flex Shape OCPUs
+    minimum: 4
+    maximum: 64
+    required: false
+
+  spoke_vm_flex_shape_ocpus:
+    visible:
+      eq:
+        - spoke_vm_compute_shape
+        - "VM.Standard.E3.Flex"
+    type: integer
+    default: 1
+    title: Flex Shape OCPUs
+    minimum: 1
+    maximum: 4
+    required: false
+
+  instance_launch_options_network_type:
+    type: enum
+    default: "PARAVIRTUALIZED"
+    title: Launch options
+    description: NIC Attachment Type
+    enum:
+      - "PARAVIRTUALIZED"
+      - "VFIO"
+    required: true
+
+  mp_listing_id:
+    type: string
+    required: true
+    description: Marketplace Listing ID
+
+  mp_listing_resource_id:
+    type: oci:core:image:id
+    required: true
+    description: Marketplace Image OCID
+    dependsOn:
+      compartmentId: compartment_ocid
+
+  mp_listing_resource_version:
+    type: string
+    required: true
+    description: Marketplace Listing package version
+
+  # Network Type Options
+  network_strategy:
+    type: enum
+    title: Network Strategy
+    description: Create or use existing Network Stack (VCN and Subnet)
+    enum:
+      - "Create New VCN and Subnet"
+      - "Use Existing VCN and Subnet"
+    required: true
+    default: "Create New VCN and Subnet"
+
+  subnet_span:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy
+        - "Create New VCN and Subnet"
+    type: enum
+    title: Subnet Span
+    description: Choose between regional and AD specific subnets
+    enum:
+      - "Regional Subnet"
+      - "AD Specific Subnet"
+    required: true
+    default: "Regional Subnet"
+
+  vcn_display_name:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy
+        - "Create New VCN and Subnet"
+    type: string
+    default: firewall-vcn
+    required: true
+    title: Firewall Virtual Cloud Network (VCN)
+    description: The name of the new Virtual Cloud Network (VCN)
+
+  web_vcn_display_name:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy
+        - "Create New VCN and Subnet"
+    type: string
+    default: web-vcn
+    required: true
+    title: Web Tier Virtual Cloud Network (VCN)
+    description: The name of the new Virtual Cloud Network (VCN)
+
+  db_vcn_display_name:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy
+        - "Create New VCN and Subnet"
+    type: string
+    default: db-vcn
+    required: true
+    title: DB Tier Virtual Cloud Network (VCN)
+    description: The name of the new Virtual Cloud Network (VCN)
+
+  vcn_id:
+    visible: #($network_strategy  == "Use Existing VCN and Subnet")
+      eq:
+        - network_strategy
+        - "Use Existing VCN and Subnet"
+    type: oci:core:vcn:id
+    dependsOn:
+      compartmentId: compartment_ocid
+    required: true
+    title: Existing Network - Firewall/Hub VCN
+    description: An existing Virtual Cloud Network (VCN) in which to create the compute instances, network resources, and load balancers. If not specified, a new VCN is created.
+
+  web_vcn_id:
+    visible: #($network_strategy  == "Use Existing VCN and Subnet")
+      eq:
+        - network_strategy
+        - "Use Existing VCN and Subnet"
+    type: oci:core:vcn:id
+    dependsOn:
+      compartmentId: compartment_ocid
+    required: true
+    title: Existing Network - Web VCN
+    description: An existing Web Virtual Cloud Network (VCN) in which to create the compute instances, network resources, and load balancers. If not specified, a new VCN is created.
+
+  db_vcn_id:
+    visible: #($network_strategy  == "Use Existing VCN and Subnet")
+      eq:
+        - network_strategy
+        - "Use Existing VCN and Subnet"
+    type: oci:core:vcn:id
+    dependsOn:
+      compartmentId: compartment_ocid
+    required: true
+    title: Existing Network - DB VCN
+    description: An existing DB Virtual Cloud Network (VCN) in which to create the compute instances, network resources, and load balancers. If not specified, a new VCN is created.
+
+  vcn_cidr_block:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy
+        - "Create New VCN and Subnet"
+    type: string
+    required: true
+    default: 192.168.0.0/16
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    title: Firewall VCN CIDR BLOCK
+    description: The CIDR of the new Virtual Cloud Network (VCN). If you plan to peer this VCN with another VCN, the VCNs must not have overlapping CIDRs.
+
+  web_vcn_cidr_block:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy
+        - "Create New VCN and Subnet"
+    type: string
+    required: true
+    default: 10.0.0.0/24
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    title: Web VCN CIDR BLOCK
+    description: The CIDR of the new Virtual Cloud Network (VCN). If you plan to peer this VCN with another VCN, the VCNs must not have overlapping CIDRs.
+
+  db_vcn_cidr_block:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy
+        - "Create New VCN and Subnet"
+    type: string
+    required: true
+    default: 10.0.1.0/24
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    title: DB VCN CIDR BLOCK
+    description: The CIDR of the new Virtual Cloud Network (VCN). If you plan to peer this VCN with another VCN, the VCNs must not have overlapping CIDRs.
+
+  mangement_subnet_id:
+    visible: #($network_strategy  == "Use Existing VCN and Subnet")
+      eq:
+        - network_strategy
+        - "Use Existing VCN and Subnet"
+    type: oci:core:subnet:id
+    dependsOn:
+      vcnId: vcn_id
+      compartmentId: compartment_ocid
+    default: ""
+    required: true
+    title: Existing Management Subnet
+    description: An existing management subnet to use for compute instances. This subnet must already be present in the chosen VCN.
+
+  mangement_subnet_display_name:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy
+        - "Create New VCN and Subnet"
+    type: string
+    default: management-subnet
+    required: true
+    title: Management Subnet
+    description: The name of the new Management Subnet
+
+  mangement_subnet_cidr_block:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy
+        - "Create New VCN and Subnet"
+    type: string
+    default: 192.168.0.0/24
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    required: true
+    title: Managment Subnet CIDR
+    description: The CIDR of the new Subnet. The new subnet's CIDR should not overlap with any other subnet CIDRs.
+
+  trust_subnet_id:
+    visible: #($network_strategy  == "Use Existing VCN and Subnet")
+      eq:
+        - network_strategy
+        - "Use Existing VCN and Subnet"
+    type: oci:core:subnet:id
+    dependsOn:
+      vcnId: vcn_id
+      compartmentId: compartment_ocid
+    default: ""
+    required: true
+    title: Existing Trust Subnet
+    description: An existing trust subnet to use for transit connectivity between hub and spoke. This subnet must already be present in the chosen VCN.
+
+  trust_subnet_display_name:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy
+        - "Create New VCN and Subnet"
+    type: string
+    default: trust-subnet
+    required: true
+    title: Trust Subnet
+    description: The name of the new Trust Subnet
+
+  trust_subnet_cidr_block:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy
+        - "Create New VCN and Subnet"
+    type: string
+    default: 192.168.2.0/24
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    required: true
+    title: Trust Subnet CIDR
+    description: The CIDR of the new Subnet. The new subnet's CIDR should not overlap with any other subnet CIDRs.
+
+  untrust_subnet_id:
+    visible: #($network_strategy  == "Use Existing VCN and Subnet")
+      eq:
+        - network_strategy
+        - "Use Existing VCN and Subnet"
+    type: oci:core:subnet:id
+    dependsOn:
+      vcnId: vcn_id
+      compartmentId: compartment_ocid
+    default: ""
+    required: true
+    title: Existing Untrust Subnet
+    description: An existing Untrust subnet to use traffic coming from outside. This subnet must already be present in the chosen VCN.
+
+  untrust_subnet_display_name:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy
+        - "Create New VCN and Subnet"
+    type: string
+    default: untrust-subnet
+    required: true
+    title: Untrust Subnet
+    description: The name of the new Untrust Subnet
+
+  untrust_subnet_cidr_block:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy
+        - "Create New VCN and Subnet"
+    type: string
+    default: 192.168.1.0/24
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    required: true
+    title: Untrust Subnet CIDR
+    description: The CIDR of the new Subnet. The new subnet's CIDR should not overlap with any other subnet CIDRs.
+
+  nlb_subnet_id:
+    visible: #($network_strategy  == "Use Existing VCN and Subnet")
+      eq:
+        - network_strategy
+        - "Use Existing VCN and Subnet"
+    type: oci:core:subnet:id
+    dependsOn:
+      vcnId: vcn_id
+      compartmentId: compartment_ocid
+    default: ""
+    required: true
+    title: Existing nlb Subnet
+    description: An existing NLB subnet used to provide a connectivity between Palo Alto Networks VMs. This subnet must already be present in the chosen VCN.
+
+  nlb_subnet_display_name:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy
+        - "Create New VCN and Subnet"
+    type: string
+    default: nlb-subnet
+    required: true
+    title: nlb Subnet
+    description: The name of the new Untrust Subnet
+
+  nlb_subnet_cidr_block:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy
+        - "Create New VCN and Subnet"
+    type: string
+    default: 192.168.30.0/24
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    required: true
+    title: nlb Subnet CIDR
+    description: The CIDR of the new Subnet. The new subnet's CIDR should not overlap with any other subnet CIDRs.
+
+  web_transit_subnet_id:
+    visible: #($network_strategy  == "Use Existing VCN and Subnet")
+      eq:
+        - network_strategy
+        - "Use Existing VCN and Subnet"
+    type: oci:core:subnet:id
+    dependsOn:
+      vcnId: vcn_id
+      compartmentId: compartment_ocid
+    default: ""
+    required: true
+    title: Existing Web Private Subnet
+    description: An existing web private subnet to use for transit connectivity between hub and spoke. This subnet must already be present in the chosen VCN.
+
+  web_transit_subnet_display_name:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy
+        - "Create New VCN and Subnet"
+    type: string
+    default: web_private-subnet
+    required: true
+    title: Web Private Subnet
+    description: The name of the new Web Private Subnet
+
+  web_transit_subnet_cidr_block:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy
+        - "Create New VCN and Subnet"
+    type: string
+    default: 10.0.0.0/25
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    required: true
+    title: Web Private Subnet CIDR
+    description: The CIDR of the new Subnet. The new subnet's CIDR should not overlap with any other subnet CIDRs.
+
+  web_lb_subnet_id:
+    visible: #($network_strategy  == "Use Existing VCN and Subnet")
+      eq:
+        - network_strategy
+        - "Use Existing VCN and Subnet"
+    type: oci:core:subnet:id
+    dependsOn:
+      vcnId: vcn_id
+      compartmentId: compartment_ocid
+    default: ""
+    required: true
+    title: Existing Web Loadbalancer Public Subnet
+    description: An existing web private subnet to use for transit connectivity between hub and spoke. This subnet must already be present in the chosen VCN.
+
+  web_lb_subnet_display_name:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy
+        - "Create New VCN and Subnet"
+    type: string
+    default: web_lb-subnet
+    required: true
+    title: Web Loadbalancer Public Subnet
+    description: The name of the new Trust Subnet
+
+  web_lb_subnet_cidr_block:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy
+        - "Create New VCN and Subnet"
+    type: string
+    default: 10.0.0.128/25
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    required: true
+    title: Web Loadbalancer Public Subnet CIDR
+    description: The CIDR of the new Subnet. The new subnet's CIDR should not overlap with any other subnet CIDRs.
+
+  db_transit_subnet_id:
+    visible: #($network_strategy  == "Use Existing VCN and Subnet")
+      eq:
+        - network_strategy
+        - "Use Existing VCN and Subnet"
+    type: oci:core:subnet:id
+    dependsOn:
+      vcnId: vcn_id
+      compartmentId: compartment_ocid
+    default: ""
+    required: true
+    title: Existing DB Tier Private Subnet
+    description: An existing db private subnet to use for transit connectivity between hub and spoke. This subnet must already be present in the chosen VCN.
+
+  db_transit_subnet_display_name:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy
+        - "Create New VCN and Subnet"
+    type: string
+    default: db_private-subnet
+    required: true
+    title: DB Tier Private Subnet
+    description: The name of the new db Private Subnet
+
+  db_transit_subnet_cidr_block:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy
+        - "Create New VCN and Subnet"
+    type: string
+    default: 10.0.1.0/25
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    required: true
+    title: db Private Subnet CIDR
+    description: The CIDR of the new Subnet. The new subnet's CIDR should not overlap with any other subnet CIDRs.
+
+  vcn_dns_label:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy
+        - "Create New VCN and Subnet"
+    type: string
+    required: true
+    default: ha
+    title: Firewall VCN DNS Label
+    description: Firewall VCN DNS Label. Only letters and numbers, starting with a letter. 15 characters max.
+
+  web_vcn_dns_label:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy
+        - "Create New VCN and Subnet"
+    type: string
+    required: true
+    default: web
+    title: Web VCN DNS Label
+    description: VCN DNS Label. Only letters and numbers, starting with a letter. 15 characters max.
+
+  db_vcn_dns_label:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy
+        - "Create New VCN and Subnet"
+    type: string
+    required: true
+    default: db
+    title: DB VCN DNS Label
+    description: VCN DNS Label. Only letters and numbers, starting with a letter. 15 characters max.
+
+  mangement_subnet_dns_label:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy
+        - "Create New VCN and Subnet"
+    type: string
+    required: true
+    default: management
+    title: Managment Subnet DNS Label
+    description: Managment Subnet DNS Label. Only letters and numbers, starting with a letter. 15 characters max.
+
+  trust_subnet_dns_label:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy
+        - "Create New VCN and Subnet"
+    type: string
+    required: true
+    default: trust
+    title: Trust Subnet DNS Label
+    description: Trust Subnet DNS Label. Only letters and numbers, starting with a letter. 15 characters max.
+
+  untrust_subnet_dns_label:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy
+        - "Create New VCN and Subnet"
+    type: string
+    required: true
+    default: untrust
+    title: Untrust Subnet DNS Label
+    description: Untrust subnet DNS Label. Only letters and numbers, starting with a letter. 15 characters max.
+
+  nlb_subnet_dns_label:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy
+        - "Create New VCN and Subnet"
+    type: string
+    required: true
+    default: nlb
+    title: nlb subnet DNS Label
+    description: nlb subnet DNS Label. Only letters and numbers, starting with a letter. 15 characters max.
+
+  use_existing_ip:
+    type: enum
+    title: Firewall Untrust Interface Floating Cluster Public IP
+    required: true
+    enum:
+      - "Create new IP"
+      - "Add IP later"
+    description: Create a permanent cluster IP or add one later
+
+  nsg_whitelist_ip:
+    type: string
+    required: true
+    default: 0.0.0.0/0
+    title: Network Security Groups - Whitelisted IP
+    description: "Ingress connection to VM whitelisted from IP (range). Enter 0.0.0.0/0 or <your IP>/32"
+
+  nsg_display_name:
+    type: string
+    required: true
+    default: cluster-security-group
+    title: Network Security Group
+    description: The name of the Network Security Group
+
+  web_nsg_display_name:
+    type: string
+    required: true
+    default: web-security-group
+    title: Network Security Group
+    description: The name of the Network Security Group for Web Tier VMs
+
+  db_nsg_display_name:
+    type: string
+    required: true
+    default: db-security-group
+    title: Network Security Group
+    description: The name of the Network Security Group for DB Tier VMs
+
+  public_routetable_display_name:
+    type: string
+    required: true
+    default: UntrustRouteTable
+    title: Public Route Table
+    description: The name of the Public Route Table
+
+  private_routetable_display_name:
+    type: string
+    required: true
+    default: TrustRouteTable
+    title: Trust Route Table
+    description: The name of the Trust Route Table
+
+  lpg_routetable_display_name:
+    type: string
+    required: true
+    default: LPGRouteTable
+    title: LPG Route Table
+    description: The name of the LPG Route Table
+
+  sgw_routetable_display_name:
+    type: string
+    required: true
+    default: SGWRouteTable
+    title: SGW Route Table
+    description: The name of the SGW Route Table
+
+  nlb_routetable_display_name:
+    type: string
+    required: true
+    default: NLBRouteTable
+    title: NLB Route Table
+    description: The name of the NLB Route Table
+
+  drg_routetable_display_name:
+    type: string
+    required: true
+    default: DRGRouteTable
+    title: DRG Route Table
+    description: The name of the DRG Route Table
+
+outputGroups:
+  - title: "PAN Connection"
+    outputs:
+      - instance_public_ips
+      - instance_private_ips
+      - instance_id
+      - instance_https_urls
+      - cluster_ip
+
+outputs:
+  instance_https_urls:
+    type: link
+    title: Open Palo Alto HA-VM Portals
+    visible: true
+
+  firewallA_instance_public_ips:
+    type: link
+    title: Firewall-A Instance Public IP
+    visible: true
+
+  firewallA_instance_private_ips:
+    type: link
+    title: Firewall-A Instance Private IP
+    visible: true
+
+  firewallB_instance_public_ips:
+    type: link
+    title: Firewall-B Instance Public IP
+    visible: true
+
+  firewallB_instance_private_ips:
+    type: link
+    title: Firewall-B Instance Private IP
+    visible: true
+
+  initial_instruction:
+    type: string
+    title: Initial Instruction
+    visible: false
+
+  subscription:
+    type: string
+    title: Subscription
+    visible: false
