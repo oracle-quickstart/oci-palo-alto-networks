@@ -122,7 +122,7 @@ This section will include necessary configuration which you need to configure to
 Once you deploy the infrastructure either using Oracle Resource Manager or Terraform CLI. We have to upload configuration on Palo Alto Networks VM series Firewall. 
 
 
-> This section will be automated as Palo Alto Networks personal add bootstrap configuration using either user-data or bucket. You can follow  [Config Directory](./config-ha) directory for the time being to support routes, policies, interfaces config. Make sure that you update below values in xml file before you proceed to load the configuration on Firewall.
+> This section will be automated as Palo Alto Networks personal add bootstrap configuration using either user-data or bucket. You can follow  [Config Directory](./config-single-arm) directory for the time being to support routes, policies, interfaces config. Make sure that you update below values in xml file before you proceed to load the configuration on Firewall.
 
 Before you proceed to next section, you should setup a admin password through CLI (Instrcutions are printed after a successful run of this code) using below commands: 
 
