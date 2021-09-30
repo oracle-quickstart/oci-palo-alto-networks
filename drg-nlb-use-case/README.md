@@ -2,11 +2,11 @@
 
 We are using hub-and-spoke architecture (often called as star topology), dynamic routing gateway and flexible network load balancer with Palo Alto Networks VM Sereis Firewall. This architecture has a central component (the hub) that's connected to multiple networks around it, like a spoke. We are using Palo Alto Networks VM series firewall BOYL Listing from OCI Marketplace.
 
-For details of the architecture, see [_Set up a hub-and-spoke network topology_](https://docs.oracle.com/en/solutions/hub-spoke-network/index.html).
+For details of the architecture, see [_Set up Refrence Architecture Topology_](https://docs.oracle.com/en/solutions/secure-work-vm-series-firewall/index.html).
 
 ## Architecture Diagram
 
-**Diagram will be updated**
+![](./images/archs.png)
 
 ## Validated Version Details
 
