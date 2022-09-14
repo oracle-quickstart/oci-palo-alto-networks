@@ -39,18 +39,18 @@ resource "oci_core_drg_attachment" "hub_drg_attachment" {
 }
 
 # ------ Attach DRG to Web Spoke VCN
-resource "oci_core_drg_attachment" "web_drg_attachment" {
+resource "oci_core_drg_attachment" "db_drg_attachment" {
   drg_id             = var.drg_ocid
   vcn_id             = var.db_vcn
-  display_name       = "Web_VCN"
+  display_name       = "DB_VCN"
   drg_route_table_id = oci_core_drg_route_table.to_firewall_route_table.id
 }
 
 # ------ Attach DRG to DB Spoke VCN
-resource "oci_core_drg_attachment" "db_drg_attachment" {
+resource "oci_core_drg_attachment" "web_drg_attachment" {
   drg_id             = var.drg_ocid
   vcn_id             = var.web_vcn
-  display_name       = "DB_VCN"
+  display_name       = "Web_VCN"
   drg_route_table_id = oci_core_drg_route_table.to_firewall_route_table.id
 }
 

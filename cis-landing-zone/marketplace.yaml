@@ -32,6 +32,8 @@ variableGroups:
       - template_name
       - template_version
       - network_strategy_enum
+      - vcn_cidrs
+      - vcn_names
 
   - title: "Common Compute Configuration"
     variables:
@@ -40,9 +42,7 @@ variableGroups:
       - vm_flex_shape_ocpus
       - ssh_public_key
       - instance_launch_options_network_type
-      - vcn_names
       - service_label
-      - vcn_cidrs
 
   - title: "CIS Benchmark Variables"
     variables:
