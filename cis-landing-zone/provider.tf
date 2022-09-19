@@ -1,39 +1,51 @@
 # ---- Terraform Version
 terraform {
-  required_version = ">= 0.12.0"
-}
+  required_version = ">= 1.1.0"
 
-# ---- Initiate Provider
-provider "oci" {
-  region               = var.region
-  tenancy_ocid         = var.tenancy_ocid
-  user_ocid            = var.user_ocid
-  fingerprint          = var.fingerprint
-  private_key_path     = var.private_key_path
-  private_key_password = var.private_key_password
-}
+  required_providers {
+    oci = {
+      source                = "hashicorp/oci"
+      version               = ">= 4.80.0"
+    }
+  }
+} 
 
-# ---- Region
-variable "region" {
-  default = ""
-}
 
-# ---- User OCID
-variable "user_ocid" {
-  default = ""
-}
+# terraform {
+#   required_version = ">= 0.12.0"
+# }
 
-# ---- User Fingerprint
-variable "fingerprint" {
-  default = ""
-}
+# # ---- Initiate Provider
+# provider "oci" {
+#   region               = var.region
+#   tenancy_ocid         = var.tenancy_ocid
+#   user_ocid            = var.user_ocid
+#   fingerprint          = var.fingerprint
+#   private_key_path     = var.private_key_path
+#   private_key_password = var.private_key_password
+# }
 
-# ---- User Private Key Path
-variable "private_key_path" {
-  default = ""
-}
+# # ---- Region
+# variable "region" {
+#   default = ""
+# }
 
-# ---- User Private Key Password
-variable "private_key_password" {
-  default = ""
-}
+# # ---- User OCID
+# variable "user_ocid" {
+#   default = ""
+# }
+
+# # ---- User Fingerprint
+# variable "fingerprint" {
+#   default = ""
+# }
+
+# # ---- User Private Key Path
+# variable "private_key_path" {
+#   default = ""
+# }
+
+# # ---- User Private Key Password
+# variable "private_key_password" {
+#   default = ""
+# }
