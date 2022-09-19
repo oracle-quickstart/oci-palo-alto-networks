@@ -44,14 +44,24 @@ variableGroups:
       - instance_launch_options_network_type
       - service_label
 
-  - title: "CIS Benchmark Variables"
+  - title: "CIS Benchmark Hub Variables"
     variables:
       - network_compartment
       - network_strategy
       - drg_ocid
       - firewall_vcn
-      - web_vcn
-      - db_vcn
+  
+  - title: "CIS Benchmark Spoke Variables"
+    variables:
+      - vcn_0
+      - vcn_1
+      - vcn_2
+      - vcn_3
+      - vcn_4
+      - vcn_5
+      - vcn_6
+      - vcn_7
+      - vcn_8
 
   - title: "Identity Configuration"
     variables:
@@ -142,7 +152,7 @@ variables:
   network_compartment:
     type: oci:identity:compartment:id
     required: true
-    title: CIS Bencmark Network Compartment  
+    title: CIS Benchmark Network Compartment  
     description: CIS Benchmark Network Compartment Value
     default: compartment_ocid    
 
@@ -166,7 +176,7 @@ variables:
     dependsOn:
       compartmentId: network_compartment
     required: true
-    title: CIS Bencmark DRG OCID 
+    title: CIS Benchmark DRG OCID 
     description: CIS Benchmark DRG OCID Value
 
   firewall_vcn:
@@ -178,10 +188,10 @@ variables:
     dependsOn:
       compartmentId: network_compartment
     required: true
-    title: CIS Bencmark Firewall/Hub VCN  
+    title: CIS Benchmark Firewall/Hub VCN  
     description: CIS Benchmark Firewall/Hub VCN Value
 
-  web_vcn:
+  vcn_0:
     visible: #($network_strategy  == "Use Existing VCN and Subnet")
       eq:
         - network_strategy 
@@ -190,10 +200,10 @@ variables:
     dependsOn:
       compartmentId: network_compartment
     required: true
-    title: CIS Bencmark Web VCN  
-    description: CIS Benchmark Web VCN Value
+    title: CIS Landing Zone Spoke 0 VCN 
+    description: CIS Landing Zone Spoke 0 VCN Value
 
-  db_vcn:
+  vcn_1:
     visible: #($network_strategy  == "Use Existing VCN and Subnet")
       eq:
         - network_strategy 
@@ -201,9 +211,93 @@ variables:
     type: oci:core:vcn:id
     dependsOn:
       compartmentId: network_compartment
-    required: true
-    title: CIS Bencmark DB VCN 
-    description: CIS Benchmark DB VCN Value
+    required: false
+    title: CIS Landing Zone Spoke 1 VCN 
+    description: CIS Landing Zone Spoke 1 VCN Value
+
+  vcn_2:
+    visible: #($network_strategy  == "Use Existing VCN and Subnet")
+      eq:
+        - network_strategy 
+        - "Use Existing VCN and Subnet"
+    type: oci:core:vcn:id
+    dependsOn:
+      compartmentId: network_compartment
+    required: false
+    title: CIS Landing Zone Spoke 2 VCN 
+    description: CIS Landing Zone Spoke 2 VCN Value
+
+  vcn_3:
+    visible: #($network_strategy  == "Use Existing VCN and Subnet")
+      eq:
+        - network_strategy 
+        - "Use Existing VCN and Subnet"
+    type: oci:core:vcn:id
+    dependsOn:
+      compartmentId: network_compartment
+    required: false
+    title: CIS Landing Zone Spoke 3 VCN 
+    description: CIS Landing Zone Spoke 3 VCN Value
+
+  vcn_4:
+    visible: #($network_strategy  == "Use Existing VCN and Subnet")
+      eq:
+        - network_strategy 
+        - "Use Existing VCN and Subnet"
+    type: oci:core:vcn:id
+    dependsOn:
+      compartmentId: network_compartment
+    required: false
+    title: CIS Landing Zone Spoke 4 VCN 
+    description: CIS Landing Zone Spoke 4 VCN Value
+
+  vcn_5:
+    visible: #($network_strategy  == "Use Existing VCN and Subnet")
+      eq:
+        - network_strategy 
+        - "Use Existing VCN and Subnet"
+    type: oci:core:vcn:id
+    dependsOn:
+      compartmentId: network_compartment
+    required: false
+    title: CIS Landing Zone Spoke 5 VCN 
+    description: CIS Landing Zone Spoke 5 VCN Value
+
+  vcn_6:
+    visible: #($network_strategy  == "Use Existing VCN and Subnet")
+      eq:
+        - network_strategy 
+        - "Use Existing VCN and Subnet"
+    type: oci:core:vcn:id
+    dependsOn:
+      compartmentId: network_compartment
+    required: false
+    title: CIS Landing Zone Spoke 6 VCN 
+    description: CIS Landing Zone Spoke 6 VCN Value
+
+  vcn_7:
+    visible: #($network_strategy  == "Use Existing VCN and Subnet")
+      eq:
+        - network_strategy 
+        - "Use Existing VCN and Subnet"
+    type: oci:core:vcn:id
+    dependsOn:
+      compartmentId: network_compartment
+    required: false
+    title: CIS Landing Zone Spoke 7 VCN 
+    description: CIS Landing Zone Spoke 7 VCN Value
+
+  vcn_8:
+    visible: #($network_strategy  == "Use Existing VCN and Subnet")
+      eq:
+        - network_strategy 
+        - "Use Existing VCN and Subnet"
+    type: oci:core:vcn:id
+    dependsOn:
+      compartmentId: network_compartment
+    required: false
+    title: CIS Landing Zone Spoke 8 VCN 
+    description: CIS Landing Zone Spoke 8 VCN Value
 
   dynamic_group_description:
     type: string

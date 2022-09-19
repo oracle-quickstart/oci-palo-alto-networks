@@ -53,15 +53,52 @@ variable "firewall_vcn" {
   default = ""
 }
 
-# ---- Web VCN OCID
-variable "web_vcn" {
+# ---- VCN 0 OCID
+variable "vcn_0" {
   default = ""
 }
 
-# ---- DB VCN OCID
-variable "db_vcn" {
+# ---- VCN 1 OCID
+variable "vcn_1" {
   default = ""
 }
+
+# ---- VCN 2 OCID
+variable "vcn_2" {
+  default = ""
+}
+
+# ---- VCN 3 OCID
+variable "vcn_3" {
+  default = ""
+}
+
+# ---- VCN 4 OCID
+variable "vcn_4" {
+  default = ""
+}
+
+# ---- VCN 5 OCID
+variable "vcn_5" {
+  default = ""
+}
+
+# ---- VCN 6 OCID
+variable "vcn_6" {
+  default = ""
+}
+
+# ---- VCN 7 OCID
+variable "vcn_7" {
+  default = ""
+}
+
+# ---- VCN 8 OCID
+variable "vcn_8" {
+  default = ""
+}
+
+
 
 # ---- Firewall Compute Shape Value
 variable "vm_compute_shape" {
@@ -112,6 +149,7 @@ variable "vcn_names" {
 
 # ---- Create Service Label 
 variable "service_label" {
+  type = string
   validation {
     condition     = length(regexall("^[A-Za-z][A-Za-z0-9]{1,7}$", var.service_label)) > 0
     error_message = "Validation failed for service_label: value is required and must contain alphanumeric characters only, starting with a letter up to a maximum of 8 characters."
