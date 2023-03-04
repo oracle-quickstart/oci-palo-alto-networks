@@ -61,7 +61,7 @@ data "oci_identity_fault_domains" "fds" {
 
 # ------ Get the attachement based on Public Subnet
 data "oci_core_vnic_attachments" "untrust_attachments" {
-  compartment_id = var.network_compartment_ocid
+  compartment_id = var.compute_compartment_ocid
   instance_id    = oci_core_instance.ha-vms.0.id
 
   filter {
@@ -76,7 +76,7 @@ data "oci_core_vnic_attachments" "untrust_attachments" {
 
 # ------ Get the attachement based on Private Subnet
 data "oci_core_vnic_attachments" "trust_attachments" {
-  compartment_id = var.network_compartment_ocid
+  compartment_id = var.compute_compartment_ocid
   instance_id    = oci_core_instance.ha-vms.0.id
 
   filter {
